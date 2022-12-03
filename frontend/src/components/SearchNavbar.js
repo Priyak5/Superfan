@@ -30,10 +30,10 @@ const SearchNavbar = () => {
     "btssuga",
   ];
 
-  const redirectToProfile = (name) => {
-    if (name !== "")
+  const redirectToProfile = (userId) => {
+    if (userId !== "")
       window.open(
-        `http://localhost:3000/superfan/profile?name=${name}`,
+        `http://localhost:3000/superfan/profile?user_id=${userId}`,
         "_self"
       );
   };

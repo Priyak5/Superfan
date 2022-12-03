@@ -5,6 +5,7 @@ import Tabs from "../Tags";
 import PostGrid from "../PostGrid";
 import SearchNavbar from "./SearchNavbar";
 import { useSearchParams } from "react-router-dom";
+import Box from "./atoms/box.atom";
 
 const ProfileWrapper = styled.div`
   background-color: #000;
@@ -20,16 +21,15 @@ const ProfileWrapper = styled.div`
 
 function Profile() {
   const [searchParams, setSearchParams] = useSearchParams();
-  console.log(searchParams.get("ticker"));
-  const ticker = searchParams.get("ticker");
-  const name = searchParams.get("name");
-  const cost = searchParams.get("cost");
+  const user_id = searchParams.get("user_id");
+  const valid = !(user_id === null);
+  console.log(user_id, valid);
 
   const profileData = {
     profile_picture: "https://picsum.photos/200/300",
-    name: name,
-    ticker: ticker,
-    reward: cost,
+    name: "priya",
+    ticker: "hello",
+    reward: "100",
     posts: "100",
     followers: "33.5K",
     following: "345",
@@ -37,13 +37,29 @@ function Profile() {
     media: [],
   };
 
+  const isSelf = user_id === profileData.userId;
+
   return (
     <ProfileWrapper>
       <SearchNavbar />
-      {/* <TopNav /> */}
-      <ProfileDetails profileData={profileData} />
-      <Tabs />
-      <PostGrid profileData={profileData} />
+      {valid ? (
+        <>
+          <ProfileDetails profileData={profileData} isSelf={isSelf} />
+          <Tabs />
+          <PostGrid profileData={profileData} />
+        </>
+      ) : (
+        <Box
+          height="100%"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          fontSize="50px"
+          fontWeight="500"
+        >
+          {"Invalid user :("}
+        </Box>
+      )}
     </ProfileWrapper>
   );
 }

@@ -8,15 +8,42 @@ import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import InputAdornment from "@mui/material/InputAdornment";
 import noop from "lodash-es/noop";
+import { axiosInstance } from "../api";
 
 const SignUp = () => {
   const [name, setName] = useState("");
   const [price, setPrice] = useState(0);
   const [ticker, setTicker] = useState("");
 
+  const onSignupClick = (name = "", price = "", ticker = "") => {
+    axiosInstance
+      .post("/user/profile", {
+        ticker: ticker,
+        price: price,
+        name: name,
+      })
+      .then(function (response) {
+        console.log(response);
+        const name = response.data.payload.name ?? "";
+        const price = response.data.payload.price ?? "";
+        const ticker = response.data.payload.ticker ?? "";
+        const userId = response.data.payload.userId ?? "";
+        setName(name);
+        setPrice(price);
+        setTicker(ticker);
+        window.localStorage.setItem("user_id", userId);
+        redirectToProfile();
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
   const redirectToProfile = () => {
     window.open(
-      `http://localhost:3000/superfan/profile?name=${name}&&ticker=${ticker}&&cost=${price}`,
+      `http://localhost:3000/superfan/profile?user_id=${window.localStorage.getItem(
+        "username"
+      )}`,
       "_self"
     );
   };
@@ -144,7 +171,7 @@ const SignUp = () => {
             border={enableLogin ? "1px solid #6D5CD3" : "1px solid #9c9c9c"}
             hoverColor={enableLogin ? " #6D5CD3" : " #9c9c9c"}
             height="54px"
-            onClick={enableLogin ? redirectToProfile : noop}
+            onClick={enableLogin ? onSignupClick : noop}
           >
             <Box fontSize="16px" fontWeight="600">
               {"Sign up"}

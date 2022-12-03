@@ -7,10 +7,27 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import InputAdornment from "@mui/material/InputAdornment";
 import { ResizableButton } from "../styled_components";
 import { ClickAwayListener } from "@mui/base";
+import { axiosInstance } from "../api";
 
-function StartEarningBox(handleClose) {
+function StartEarningBox(handleClose, ticker, setPrice) {
   console.log(handleClose);
   const [cost, setCost] = useState();
+
+  const onUpdateClick = (price = "", ticker = "") => {
+    axiosInstance
+      .post("/user/profile", {
+        ticker: ticker,
+        price: price,
+      })
+      .then(function (response) {
+        const price = response.data.payload.price ?? "";
+        setPrice(price);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    handleClose();
+  };
   return (
     <ClickAwayListener onClickAway={handleClose}>
       <Box
@@ -61,7 +78,7 @@ function StartEarningBox(handleClose) {
             </FormControl>
           </form>
         </Box>
-        <Box display="flex" justifyContent="center">
+        <Box display="flex" justifyContent="center" onClick={onUpdateClick}>
           <ResizableButton
             borderRadius="20px"
             color="#fff"

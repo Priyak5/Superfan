@@ -3,7 +3,8 @@ import { ResizableButton } from "../../styled_components";
 import Box from "../atoms/box.atom";
 import logo from "../../logo.png";
 import { ethers } from "ethers";
-// import ErrorMessage from "./ErrorMessage";
+import axios from "axios";
+import noop from "lodash-es/noop";
 
 const signMessage = async ({ setError, message = "sign me up" }) => {
   try {
@@ -16,8 +17,6 @@ const signMessage = async ({ setError, message = "sign me up" }) => {
     const signer = provider.getSigner();
     const signature = await signer.signMessage(message);
     const address = await signer.getAddress();
-
-    console.log(message, signature, address);
 
     return {
       message,
@@ -32,20 +31,61 @@ const signMessage = async ({ setError, message = "sign me up" }) => {
 const Navbar = () => {
   const [signatures, setSignatures] = useState([]);
   const [error, setError] = useState();
+  const [isConnected, setIsConnceted] = useState(false);
+  const isUserLoggedin =
+    window.localStorage.getItem("user_id") === "" ||
+    window.localStorage.getItem("user_id") === undefined;
 
   const redirectToSignup = () => {
     window.open("http://localhost:3000/superfan/signup", "_self");
   };
 
-  const handleSign = (e) => {
+  const loginUser = (address, hash) => {
+    const payload = {
+      ethereum_address: address,
+      signature_hash: hash,
+    };
+    axios
+      .post("/user/login", payload)
+      .then(function (response) {
+        console.log(response);
+        const userExists = !(response.data.payload.name === "");
+        const userId = response.data.payload.user_id;
+
+        const isError = response.data.error_msg;
+        if (isError === "") {
+          const accessToken = response.data.payload.jwt_credentials.access;
+          window.localStorage.setItem("Authorization", `JWT ${accessToken}`);
+          window.localStorage.setItem("user_id", `JWT ${userId}`);
+          if (userExists) {
+            redirectToProfile();
+          } else {
+            redirectToSignup();
+          }
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
+  const handleSign = async (e) => {
     const sig = signMessage({
       setError,
-      message: "sign me up",
+      message: "You are signing into XFans.",
     });
-    if (sig) {
-      setSignatures([...signatures, sig]);
-      redirectToSignup();
-    }
+    await sig;
+    setSignatures([...signatures, sig]);
+    setIsConnceted(true);
+    loginUser();
+  };
+  const redirectToProfile = () => {
+    window.open(
+      `http://localhost:3000/superfan/profile?user_id=${window.localStorage.getItem(
+        "user_id"
+      )}`,
+      "_self"
+    );
   };
 
   return (
@@ -68,21 +108,57 @@ const Navbar = () => {
         pt="15px"
         pl="345px"
         pr="150px"
-        onClick={handleSign}
+        onClick={isConnected ? noop : handleSign}
       >
-        <ResizableButton
-          width="178px"
-          borderRadius="20px"
-          color="#fff"
-          bgColor="#6D5CD3"
-          border="1px solid 
+        {isConnected ? (
+          <>
+            <ResizableButton
+              width="178px"
+              borderRadius="20px"
+              color="#fff"
+              bgColor="#6D5CD3"
+              border="1px solid 
           #6D5CD3"
-          height="64px"
-        >
-          <Box fontSize="16px" fontWeight="600">
-            {"Connect to wallet"}
+              height="64px"
+            >
+              <Box fontSize="16px" fontWeight="600">
+                {"Wallet connected"}
+              </Box>
+            </ResizableButton>
+          </>
+        ) : (
+          <ResizableButton
+            width="178px"
+            borderRadius="20px"
+            color="#fff"
+            bgColor="#6D5CD3"
+            border="1px solid 
+          #6D5CD3"
+            height="64px"
+          >
+            <Box fontSize="16px" fontWeight="600">
+              {"Connect to wallet"}
+            </Box>
+          </ResizableButton>
+        )}
+        {isUserLoggedin && (
+          <Box pl="10px">
+            <ResizableButton
+              width="178px"
+              borderRadius="20px"
+              color="#fff"
+              bgColor="#6D5CD3"
+              border="1px solid 
+          #6D5CD3"
+              height="64px"
+              onClick={redirectToProfile}
+            >
+              <Box fontSize="16px" fontWeight="600">
+                {"Go to profile"}
+              </Box>
+            </ResizableButton>
           </Box>
-        </ResizableButton>
+        )}
       </Box>
     </Box>
   );

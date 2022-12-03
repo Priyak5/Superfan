@@ -72,15 +72,16 @@ const style = {
   p: 4,
 };
 
-function ProfileDetails({ profileData = {} }) {
+function ProfileDetails({ profileData = {}, isSelf = false }) {
   const [open, setOpen] = useState();
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  const isUsersProfile = false;
+  const [price, setPrice] = useState();
+  const [ticker, setTicker] = useState("");
+  const isUsersProfile = isSelf;
 
   const [openCost, setOpenCost] = useState();
   const handleOpenCost = () => {
-    console.log("click");
     setOpenCost(true);
   };
   const handleCloseCost = () => setOpenCost(false);
@@ -91,7 +92,7 @@ function ProfileDetails({ profileData = {} }) {
     "https://www.pakainfo.com/wp-content/uploads/2021/09/image-url-for-testing.jpg"
   );
   const name = get(profileData, "name", "");
-  const ticker = get(profileData, "ticker", "");
+  const tickerb = get(profileData, "ticker", "");
   const cost = get(profileData, "reward", "");
   const posts = get(profileData, "posts", "");
   const followers = get(profileData, "followers", "");
@@ -242,7 +243,11 @@ function ProfileDetails({ profileData = {} }) {
                 </Box>
               </ResizableButton>
               <Modal open={openCost} onClose={handleCloseCost}>
-                <StartEarningBox handleClose={handleCloseCost} />
+                <StartEarningBox
+                  handleClose={handleCloseCost}
+                  ticker={ticker}
+                  setPrice={setPrice}
+                />
               </Modal>
             </Box>
           </Box>
