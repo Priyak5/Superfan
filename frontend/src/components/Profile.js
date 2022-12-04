@@ -26,7 +26,7 @@ function Profile() {
   console.log(user_id, valid);
 
   const profileData = {
-    profile_picture: "https://picsum.photos/200/300",
+    profile_picture: "",
     name: "priya",
     ticker: "hello",
     reward: "100",

@@ -5,6 +5,7 @@ import logo from "../../logo.png";
 import { ethers } from "ethers";
 import axios from "axios";
 import noop from "lodash-es/noop";
+import tick from "../../tick.png";
 
 const signMessage = async ({ setError, message = "sign me up" }) => {
   try {
@@ -107,24 +108,25 @@ const Navbar = () => {
         alignItems="center"
         pt="15px"
         pl="345px"
-        pr="150px"
+        pr="180px"
         onClick={isConnected ? noop : handleSign}
       >
         {isConnected ? (
           <>
-            <ResizableButton
+            <Box
               width="178px"
               borderRadius="20px"
               color="#fff"
               bgColor="#6D5CD3"
-              border="1px solid 
-          #6D5CD3"
               height="64px"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
             >
               <Box fontSize="16px" fontWeight="600">
                 {"Wallet connected"}
               </Box>
-            </ResizableButton>
+            </Box>
           </>
         ) : (
           <ResizableButton

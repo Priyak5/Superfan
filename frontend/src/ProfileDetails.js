@@ -6,6 +6,7 @@ import Modal from "@mui/material/Modal";
 import AddImageBox from "./components/AddImageBox";
 import get from "lodash-es/get";
 import StartEarningBox from "./components/StartEariningBox";
+import defaultImage from "../src/components/TopCreators.js/check.png";
 
 const ProfileDetailsWrapper = styled.div`
   align-items: baseline;
@@ -72,13 +73,16 @@ const style = {
   p: 4,
 };
 
-function ProfileDetails({ profileData = {}, isSelf = false }) {
+function ProfileDetails({ profileData = {}, isSelf = true }) {
   const [open, setOpen] = useState();
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const [openProfile, setOpenProfile] = useState();
+  const handleOpenProfile = () => setOpenProfile(true);
+  const handleCloseProfile = () => setOpenProfile(false);
   const [price, setPrice] = useState();
   const [ticker, setTicker] = useState("");
-  const isUsersProfile = isSelf;
+  const isUsersProfile = true;
 
   const [openCost, setOpenCost] = useState();
   const handleOpenCost = () => {
@@ -86,11 +90,7 @@ function ProfileDetails({ profileData = {}, isSelf = false }) {
   };
   const handleCloseCost = () => setOpenCost(false);
 
-  const displayPicture = get(
-    profileData,
-    "profile_picture",
-    "https://www.pakainfo.com/wp-content/uploads/2021/09/image-url-for-testing.jpg"
-  );
+  const displayPicture = get(profileData, "profile_picture", "");
   const name = get(profileData, "name", "");
   const tickerb = get(profileData, "ticker", "");
   const cost = get(profileData, "reward", "");
@@ -120,8 +120,33 @@ function ProfileDetails({ profileData = {}, isSelf = false }) {
           alignItems="center"
           justifyContent="center"
         >
-          <img src={displayPicture} alt="hi" width="100%" />
+          {displayPicture ? (
+            <img src={displayPicture} alt="hi" width="100%" />
+          ) : (
+            <img src={defaultImage} width="100%" />
+          )}
         </Box>
+
+        {isUsersProfile && (
+          <Box onClick={handleOpenProfile} width="40%" py="20px">
+            <ResizableButton
+              borderRadius="20px"
+              color="#fff"
+              bgColor="#6D5CD3"
+              border="1px solid #3820e9"
+              height="54px"
+            >
+              <Box fontSize="16px" fontWeight="600">
+                {displayPicture
+                  ? "Update profile picture"
+                  : "Add profile picture"}
+              </Box>
+            </ResizableButton>
+            <Modal open={openProfile} onClose={handleCloseProfile}>
+              <AddImageBox handleClose={handleCloseProfile} />
+            </Modal>
+          </Box>
+        )}
         <Box
           pt="16px"
           fontSize="16px"
@@ -210,8 +235,7 @@ function ProfileDetails({ profileData = {}, isSelf = false }) {
                 borderRadius="20px"
                 color="#fff"
                 bgColor="#6D5CD3"
-                border="1px solid 
-          #3820e9"
+                border="1px solid #3820e9"
                 height="54px"
               >
                 <Box fontSize="16px" fontWeight="600">

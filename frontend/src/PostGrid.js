@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import Box from "./components/atoms/box.atom";
 import Button from "@mui/material/Button";
+import { ethers } from "ethers";
 
 const postImages = [
   "https://picsum.photos/200/300",
@@ -28,6 +29,11 @@ const GridWrapper = styled.div`
 `;
 
 function PostGrid() {
+  const buyMedia = async (e) => {
+    const data = "xyz";
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const viewMedia = new ethers.Contract("addr", "json", provider);
+  };
   return (
     <GridWrapper>
       {postImages.map((postImage) => (
@@ -48,6 +54,7 @@ function PostGrid() {
             <Button
               style={{ color: "#fff", border: "1px solid #fff" }}
               variant="outlined"
+              onClick={buyMedia}
             >
               Buy
             </Button>

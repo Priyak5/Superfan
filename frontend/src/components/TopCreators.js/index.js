@@ -26,12 +26,12 @@ const TopCreators = () => {
     image,
   ];
   return (
-    <Box background="#000" height="400px" width="100%" pt="50px">
+    <Box background="#000" px="200px" height="400px" width="100%" pt="50px">
       <Box color="#fff" pb="35px" fontSize="36px" fontWeight="800">
         {"Top creators"}
       </Box>
       <Swiper
-        slidesPerView={5}
+        slidesPerView={4}
         spaceBetween={1}
         navigation={true}
         modules={[Navigation]}
@@ -45,8 +45,8 @@ const TopCreators = () => {
           return (
             <SwiperSlide key={index}>
               <Box
-                height="200px"
-                width="200px"
+                height="150px"
+                width="150px"
                 borderRadius="100%"
                 overflow="hidden"
                 display="flex"
