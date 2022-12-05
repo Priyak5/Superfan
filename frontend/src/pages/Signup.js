@@ -16,7 +16,8 @@ const SignUp = () => {
   const [price, setPrice] = useState(0);
   const [ticker, setTicker] = useState("");
 
-  const onSignupClick = (name = "", price = "", ticker = "") => {
+  const onSignupClick = (name, price, ticker) => {
+    console.log("here");
     axiosInstance
       .post("user/profile/", {
         ticker: ticker,
@@ -24,7 +25,7 @@ const SignUp = () => {
         name: name,
       })
       .then(function (response) {
-        console.log(response);
+        console.log(response, "resp");
         const name = response.data.payload.name ?? "";
         const price = response.data.payload.price ?? "";
         const ticker = response.data.payload.ticker ?? "";
@@ -32,6 +33,7 @@ const SignUp = () => {
         setName(name);
         setPrice(price);
         setTicker(ticker);
+        console.log(userId);
         window.localStorage.setItem("user_id", userId);
         redirectToProfile();
       })
@@ -181,9 +183,9 @@ const SignUp = () => {
             border={enableLogin ? "1px solid #6D5CD3" : "1px solid #9c9c9c"}
             hoverColor={enableLogin ? " #6D5CD3" : " #9c9c9c"}
             height="54px"
-            onClick={
-              enableLogin ? () => onSignupClick(name, price, ticker) : noop
-            }
+            onClick={() => {
+              onSignupClick(name, price, ticker);
+            }}
           >
             <Box fontSize="16px" fontWeight="600">
               {"Sign up"}
