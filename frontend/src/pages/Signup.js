@@ -17,12 +17,12 @@ const SignUp = () => {
   const [ticker, setTicker] = useState("");
 
   const onSignupClick = (name, price, ticker) => {
-    const finalTicker = ticker * 10 ** 18;
+    const finalPrice = price * 10 ** 18;
 
     axiosInstance
       .post("user/profile/", {
-        ticker: finalTicker,
-        price: price,
+        ticker: ticker,
+        price: finalPrice,
         name: name,
       })
       .then(function (response) {
