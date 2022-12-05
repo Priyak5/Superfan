@@ -1,9 +1,10 @@
 import { get } from "lodash";
-import React, { useCallback, useState, useRef } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import Box from "./atoms/box.atom";
 import styled from "@emotion/styled";
 import { ResizableButton } from "../styled_components";
 import { ClickAwayListener } from "@mui/base";
+import { axiosInstance } from "../api";
 
 const FileInput = styled.input`
   display: none;
@@ -24,18 +25,14 @@ const CrossWrapper = styled(Box)`
 
 const ALLOWED_FILE_TYPES = ["image/jpg", "image/png", "image/jpeg"];
 
-export const AddImageBox = ({
-  acceptedFormats = ALLOWED_FILE_TYPES,
-  maxFileSize = 5, //in Megabytes
-  onChange = () => void 0,
-  maxNumberOfFiles = 1,
-  filesList = [],
-  id,
-  height = "400px",
-  width = "300px",
-  setCurrentImage,
-  handleClose,
-}) => {
+export const AddImageBox = ({ handleClose, type, callback }) => {
+  console.log(handleClose);
+  const acceptedFormats = ALLOWED_FILE_TYPES;
+  const maxFileSize = 5; //in Megabytes
+  const maxNumberOfFiles = 1;
+  const id = 1;
+  const filesList = [];
+
   const getFileSizeInMb = (file) => {
     const size = file && Math.abs(file["size"] / (1024 * 1024));
     return size;
@@ -43,8 +40,14 @@ export const AddImageBox = ({
   const [filesToUpload, setFilesToUpload] = useState([]);
   const [isUploadInProgress, setUploadInProgress] = useState(false);
   const [displayImageURL, setDisplayImageURL] = useState("");
+  const [imageFile, setImageFile] = useState({});
   const [isUploadComplete, setIsUploadComplete] = useState(false);
   const uploadDisabled = filesList.length === maxNumberOfFiles;
+
+  useEffect(() => {
+    setDisplayImageURL("");
+    setImageFile({});
+  }, []);
 
   function urltoFile(url, filename, mimeType) {
     return fetch(url)
@@ -55,6 +58,22 @@ export const AddImageBox = ({
         return new File([buf], filename, { type: mimeType });
       });
   }
+  const uploadImage = () => {
+    handleClose();
+    const data = new FormData();
+    data.append("file", imageFile);
+    data.append("media_type", type);
+    axiosInstance
+      .post("user/media/", data)
+      .then(function (response) {
+        console.log(response, "image");
+        const profile = response.data.media_url;
+        callback(profile);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
 
   const onFileChange = useCallback(
     (event) => {
@@ -123,7 +142,7 @@ export const AddImageBox = ({
         setIsUploadComplete(true);
         let imageObj = URL.createObjectURL(uploadedFilesList[0]);
         setDisplayImageURL(imageObj);
-        setCurrentImage(uploadedFilesList[0]);
+        setImageFile(uploadedFilesList[0]);
         event.target.value = "";
       }
     },
@@ -181,7 +200,7 @@ export const AddImageBox = ({
             >
               {isUploadComplete ? (
                 <Box>
-                  <img src={displayImageURL} height={height} width={width} />
+                  <img src={displayImageURL} height="400px" width="300px" />
                 </Box>
               ) : (
                 <Box
@@ -211,10 +230,12 @@ export const AddImageBox = ({
           <ResizableButton
             borderRadius="20px"
             color="#fff"
-            bgColor="#6D5CD3"
-            border="1px solid #6D5CD3"
+            bgColor={displayImageURL ? "#6D5CD3" : "#9c9c9c"}
+            border={displayImageURL ? "1px solid #6D5CD3" : "1px solid #9c9c9c"}
+            hoverColor={displayImageURL ? "#6D5CD3" : "#9c9c9c"}
             height="44px"
             width="200px"
+            onClick={displayImageURL && uploadImage}
           >
             <Box fontSize="16px" fontWeight="600">
               {"Upload"}

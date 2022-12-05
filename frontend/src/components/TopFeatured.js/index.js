@@ -10,9 +10,10 @@ import colorsharp from "../../colorsharp.png";
 
 const TopFeatured = () => {
   const videoUrls = [
-    "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-    "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    "https://drive.google.com/uc?id=1eQ2k3T5EhHTL4d2ieNBOpiauGiLeIwOo",
+    "https://drive.google.com/uc?id=1DzrG23QSm3PvW8NJFkxh4qyyoZKPpy3m",
+    "https://drive.google.com/uc?id=1OoMLEu5EFDNf0thi9_-1iaRB3ulCiTSQ",
+    "https://drive.google.com/uc?id=1LG0BoQOJUrRt4GkGTCiwKHJSY_OefAH3",
     "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
   ];

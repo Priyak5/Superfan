@@ -9,6 +9,7 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import InputAdornment from "@mui/material/InputAdornment";
 import noop from "lodash-es/noop";
 import { axiosInstance } from "../api";
+import { toast } from "react-toastify";
 
 const SignUp = () => {
   const [name, setName] = useState("");
@@ -17,7 +18,7 @@ const SignUp = () => {
 
   const onSignupClick = (name = "", price = "", ticker = "") => {
     axiosInstance
-      .post("/user/profile", {
+      .post("user/profile/", {
         ticker: ticker,
         price: price,
         name: name,
@@ -35,14 +36,23 @@ const SignUp = () => {
         redirectToProfile();
       })
       .catch(function (error) {
-        console.log(error);
+        toast.error(error.message, {
+          toastId: "sign_up_failed",
+          style: {
+            background: "#FBF6F7",
+            border: "1px solid #EF4F5F",
+            borderRadius: "4px",
+            fontSize: "14px",
+            color: "#EF4F5F",
+          },
+        });
       });
   };
 
   const redirectToProfile = () => {
     window.open(
-      `http://localhost:3000/superfan/profile?user_id=${window.localStorage.getItem(
-        "username"
+      `http://localhost:3001/superfan/profile?user_id=${window.localStorage.getItem(
+        "user_id"
       )}`,
       "_self"
     );
@@ -135,7 +145,7 @@ const SignUp = () => {
                 py="12px"
                 fontSize="18px"
               >
-                {"Ticker name"}
+                {"Ticker (Should not be more than 7 characters)"}
               </Box>
               <TextField
                 variant="outlined"
@@ -171,7 +181,9 @@ const SignUp = () => {
             border={enableLogin ? "1px solid #6D5CD3" : "1px solid #9c9c9c"}
             hoverColor={enableLogin ? " #6D5CD3" : " #9c9c9c"}
             height="54px"
-            onClick={enableLogin ? onSignupClick : noop}
+            onClick={
+              enableLogin ? () => onSignupClick(name, price, ticker) : noop
+            }
           >
             <Box fontSize="16px" fontWeight="600">
               {"Sign up"}

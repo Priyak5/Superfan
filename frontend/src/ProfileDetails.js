@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Box from "./components/atoms/box.atom";
 import { ResizableButton } from "./styled_components";
@@ -7,6 +7,11 @@ import AddImageBox from "./components/AddImageBox";
 import get from "lodash-es/get";
 import StartEarningBox from "./components/StartEariningBox";
 import defaultImage from "../src/components/TopCreators.js/check.png";
+import { startPayment } from "../src/funcs";
+import ErrorMessage from "./components/ErrorMessage";
+import { useSearchParams } from "react-router-dom";
+import Tabs from "./Tags";
+import PostGrid from "./PostGrid";
 
 const ProfileDetailsWrapper = styled.div`
   align-items: baseline;
@@ -73,16 +78,38 @@ const style = {
   p: 4,
 };
 
-function ProfileDetails({ profileData = {}, isSelf = true }) {
+function ProfileDetails({ profileData, isSelf, setData }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const user_id = searchParams.get("user_id");
+  const [address, setAdsress] = useState("");
   const [open, setOpen] = useState();
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+  };
   const [openProfile, setOpenProfile] = useState();
   const handleOpenProfile = () => setOpenProfile(true);
-  const handleCloseProfile = () => setOpenProfile(false);
+  const handleCloseProfile = () => {
+    setOpenProfile(false);
+  };
   const [price, setPrice] = useState();
   const [ticker, setTicker] = useState("");
-  const isUsersProfile = true;
+  const [name, setName] = useState("");
+  const [displayPicture, setDisplayPicture] = useState("");
+  const [posts, setPosts] = useState([]);
+  const [totalEarnings, setTotalEarnings] = useState("");
+  const [error, setError] = useState("");
+
+  const sendPrice = price * 10 ** 18;
+
+  useEffect(() => {
+    setError("");
+    // if (price) {
+    //   console.log(startPayment(price, setError));
+    // }
+  }, [price]);
+
+  const isUsersProfile = user_id == window.localStorage.getItem("user_id");
 
   const [openCost, setOpenCost] = useState();
   const handleOpenCost = () => {
@@ -90,125 +117,192 @@ function ProfileDetails({ profileData = {}, isSelf = true }) {
   };
   const handleCloseCost = () => setOpenCost(false);
 
-  const displayPicture = get(profileData, "profile_picture", "");
-  const name = get(profileData, "name", "");
-  const tickerb = get(profileData, "ticker", "");
-  const cost = get(profileData, "reward", "");
-  const posts = get(profileData, "posts", "");
-  const followers = get(profileData, "followers", "");
-  const following = get(profileData, "following", "");
-  const totalEarnings = get(profileData, "total_earnings", "");
+  useEffect(() => {
+    const displayPictureurl = get(profileData, "profile_pic", "");
+    setDisplayPicture(displayPictureurl);
+    const name = get(profileData, "name", "");
+    setName(name);
+    const tickerb = get(profileData, "ticker", "");
+    setTicker(tickerb);
+    const cost = get(profileData, "price", "");
+    setPrice(cost);
+    const posts = get(profileData, "posts", "");
+    setPosts(posts);
+    const totalEarnings = get(profileData, "total_earnings", "");
+    setTotalEarnings("1000");
+  }, [profileData]);
 
-  const currentlyEarning = cost === "0" || cost === undefined;
+  const updatePostList = (currentImage) => {
+    const newPosts = posts;
+    newPosts.push(currentImage);
+    setPosts(newPosts);
+  };
+
+  const currentlyEarning = price === "0" || price === undefined;
+  const isSubscribed = isSelf && posts.length != 0;
 
   return (
-    <Box width="100%" display="flex" flexDirection="horizontal">
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        py="20px"
-        width="30%"
-        flexDirection="column"
-      >
+    <>
+      <Box width="100%" display="flex" flexDirection="horizontal">
         <Box
-          height="250px"
-          width="250px"
-          borderRadius="100%"
-          overflow="hidden"
           display="flex"
           alignItems="center"
           justifyContent="center"
+          py="20px"
+          width="30%"
+          flexDirection="column"
         >
-          {displayPicture ? (
-            <img src={displayPicture} alt="hi" width="100%" />
-          ) : (
-            <img src={defaultImage} width="100%" />
+          <Box
+            height="250px"
+            width="250px"
+            borderRadius="100%"
+            overflow="hidden"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            {displayPicture ? (
+              <img src={displayPicture} alt="hi" width="100%" />
+            ) : (
+              <img src={defaultImage} width="100%" />
+            )}
+          </Box>
+
+          {isUsersProfile && (
+            <Box onClick={handleOpenProfile} width="40%" py="20px">
+              <ResizableButton
+                borderRadius="20px"
+                color="#fff"
+                bgColor="#6D5CD3"
+                border="1px solid #3820e9"
+                height="54px"
+              >
+                <Box fontSize="16px" fontWeight="600">
+                  {displayPicture
+                    ? "Update profile picture"
+                    : "Add profile picture"}
+                </Box>
+              </ResizableButton>
+              <Modal open={openProfile} onClose={handleCloseProfile}>
+                <AddImageBox
+                  handleClose={handleCloseProfile}
+                  type="PROFILE_PIC"
+                  callback={setDisplayPicture}
+                />
+              </Modal>
+            </Box>
+          )}
+          <Box
+            pt="16px"
+            fontSize="16px"
+            fontWeight="500 "
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            {name}
+          </Box>
+          <ProfileCategory>Content creator</ProfileCategory>
+          <Box
+            pt="16px"
+            fontSize="16px"
+            fontWeight="500 "
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            {ticker}
+          </Box>
+          {!isSubscribed && !isUsersProfile && (
+            <Box
+              pt="30px"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              flexDirection="column"
+            >
+              <ResizableButton
+                width="178px"
+                borderRadius="20px"
+                color="#fff"
+                bgColor="#6D5CD3"
+                border="1px solid 
+          #6D5CD3"
+                height="54px"
+                // onClick={redirectToSelf}
+              >
+                <Box fontSize="16px" fontWeight="600">
+                  {"Subscribe to view content"}
+                </Box>
+              </ResizableButton>
+              {error && (
+                <Box
+                  mt="15px"
+                  py="14px"
+                  width="400px"
+                  fontSize="16px"
+                  border="1px solid red"
+                  borderRadius="10px"
+                  background="#000"
+                  color="red"
+                >
+                  {"Unable to subscribe due to " + error}
+                </Box>
+              )}
+            </Box>
           )}
         </Box>
+        <Box
+          width="70%"
+          justifyContent="space-around"
+          display="flex"
+          flexDirection="column"
+        >
+          <ProfileDetailsWrapper>
+            {/* profile image */}
+            <ProfileStats>
+              <StatsBlock>
+                <StatsLabel>posts</StatsLabel>
+                <StatsNumber>{posts.length}</StatsNumber>
+              </StatsBlock>
+              <StatsBlock>
+                <StatsLabel>followers</StatsLabel>
+                <StatsNumber>
+                  {Math.floor(Math.random() * (10000 - 10 + 1)) + 1}
+                </StatsNumber>
+              </StatsBlock>
+              <StatsBlock>
+                <StatsLabel>following</StatsLabel>
+                <StatsNumber>
+                  {Math.floor(Math.random() * (100 - 10 + 1)) + 1}
+                </StatsNumber>
+              </StatsBlock>
+            </ProfileStats>
+          </ProfileDetailsWrapper>
 
-        {isUsersProfile && (
-          <Box onClick={handleOpenProfile} width="40%" py="20px">
-            <ResizableButton
-              borderRadius="20px"
-              color="#fff"
-              bgColor="#6D5CD3"
-              border="1px solid #3820e9"
-              height="54px"
-            >
-              <Box fontSize="16px" fontWeight="600">
-                {displayPicture
-                  ? "Update profile picture"
-                  : "Add profile picture"}
-              </Box>
-            </ResizableButton>
-            <Modal open={openProfile} onClose={handleCloseProfile}>
-              <AddImageBox handleClose={handleCloseProfile} />
-            </Modal>
-          </Box>
-        )}
-        <Box
-          pt="16px"
-          fontSize="16px"
-          fontWeight="500 "
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          {name}
-        </Box>
-        <ProfileCategory>Content creator</ProfileCategory>
-        <Box
-          pt="16px"
-          fontSize="16px"
-          fontWeight="500 "
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          {ticker}
-        </Box>
-      </Box>
-      <Box
-        width="70%"
-        justifyContent="space-around"
-        display="flex"
-        flexDirection="column"
-      >
-        <ProfileDetailsWrapper>
-          {/* profile image */}
-          <ProfileStats>
-            <StatsBlock>
-              <StatsLabel>posts</StatsLabel>
-              <StatsNumber>{posts}</StatsNumber>
-            </StatsBlock>
-            <StatsBlock>
-              <StatsLabel>followers</StatsLabel>
-              <StatsNumber>{followers}</StatsNumber>
-            </StatsBlock>
-            <StatsBlock>
-              <StatsLabel>following</StatsLabel>
-              <StatsNumber>{following}</StatsNumber>
-            </StatsBlock>
-          </ProfileStats>
-        </ProfileDetailsWrapper>
-        {isUsersProfile && (
           <Box display="flex" justifyContent="center" pr="50px">
-            <Box
-              py="20px"
-              borderRadius="16px"
-              border="2px solid #6D5CD3"
-              width="50%"
-              fontSize="16px"
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-            >
-              <Box fontWeight="800">{"Total earnings : "}</Box>
-              <Box fontSize="16px" fontWeight="800" color="#6D5CD3" pl="100px">
-                {totalEarnings}
+            {isUsersProfile && (
+              <Box
+                py="20px"
+                borderRadius="16px"
+                border="2px solid #6D5CD3"
+                width="50%"
+                fontSize="16px"
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+              >
+                <Box fontWeight="800">{"Total earnings : "}</Box>
+                <Box
+                  fontSize="16px"
+                  fontWeight="800"
+                  color="#6D5CD3"
+                  pl="100px"
+                >
+                  {totalEarnings}
+                </Box>
               </Box>
-            </Box>
+            )}
             <Box
               py="20px"
               borderRadius="16px"
@@ -220,64 +314,71 @@ function ProfileDetails({ profileData = {}, isSelf = true }) {
               alignItems="center"
               ml="26px"
             >
-              <Box fontWeight="800">{"Current earnings/post: "}</Box>
+              <Box fontWeight="800">{"Subscription cost: "}</Box>
               <Box fontSize="16px" fontWeight="800" color="#6D5CD3" pl="100px">
-                {cost}
+                {price}
                 {" CCN"}
               </Box>
             </Box>
           </Box>
-        )}
-        {isUsersProfile && (
-          <Box display="flex" justifyContent="center" pr="50px">
-            <Box onClick={handleOpen} width="40%">
-              <ResizableButton
-                borderRadius="20px"
-                color="#fff"
-                bgColor="#6D5CD3"
-                border="1px solid #3820e9"
-                height="54px"
+
+          {isUsersProfile && (
+            <Box display="flex" justifyContent="center" pr="50px">
+              <Box onClick={handleOpen} width="40%">
+                <ResizableButton
+                  borderRadius="20px"
+                  color="#fff"
+                  bgColor="#6D5CD3"
+                  border="1px solid #3820e9"
+                  height="54px"
+                >
+                  <Box fontSize="16px" fontWeight="600">
+                    {"New post"}
+                  </Box>
+                </ResizableButton>
+                <Modal open={open} onClose={handleClose}>
+                  <AddImageBox
+                    handleClose={handleClose}
+                    type="POST"
+                    callback={updatePostList}
+                  />
+                </Modal>
+              </Box>
+              <Box
+                // onClick={handleSign}
+                width="40%"
+                ml="46px"
               >
-                <Box fontSize="16px" fontWeight="600">
-                  {"New post"}
-                </Box>
-              </ResizableButton>
-              <Modal open={open} onClose={handleClose}>
-                <AddImageBox handleClose={handleClose} />
-              </Modal>
-            </Box>
-            <Box
-              // onClick={handleSign}
-              width="40%"
-              ml="46px"
-            >
-              <ResizableButton
-                borderRadius="20px"
-                color="#fff"
-                bgColor="#6D5CD3"
-                border="1px solid 
+                <ResizableButton
+                  borderRadius="20px"
+                  color="#fff"
+                  bgColor="#6D5CD3"
+                  border="1px solid 
           #3820e9"
-                height="54px"
-                onClick={handleOpenCost}
-              >
-                <Box fontSize="16px" fontWeight="600">
-                  {currentlyEarning
-                    ? "Start earning today"
-                    : "Update earning/post"}
-                </Box>
-              </ResizableButton>
-              <Modal open={openCost} onClose={handleCloseCost}>
-                <StartEarningBox
-                  handleClose={handleCloseCost}
-                  ticker={ticker}
-                  setPrice={setPrice}
-                />
-              </Modal>
+                  height="54px"
+                  onClick={handleOpenCost}
+                >
+                  <Box fontSize="16px" fontWeight="600">
+                    {currentlyEarning
+                      ? "Start earning today"
+                      : "Update subscription fee"}
+                  </Box>
+                </ResizableButton>
+                <Modal open={openCost} onClose={handleCloseCost}>
+                  <StartEarningBox
+                    handleClose={handleCloseCost}
+                    ticker={ticker}
+                    setPrice={setPrice}
+                  />
+                </Modal>
+              </Box>
             </Box>
-          </Box>
-        )}
+          )}
+        </Box>
       </Box>
-    </Box>
+      <Tabs />
+      <PostGrid posts={posts} />
+    </>
   );
 }
 

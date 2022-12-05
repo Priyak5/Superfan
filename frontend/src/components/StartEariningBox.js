@@ -9,15 +9,13 @@ import { ResizableButton } from "../styled_components";
 import { ClickAwayListener } from "@mui/base";
 import { axiosInstance } from "../api";
 
-function StartEarningBox(handleClose, ticker, setPrice) {
-  console.log(handleClose);
+function StartEarningBox({ handleClose, ticker, setPrice }) {
   const [cost, setCost] = useState();
-
-  const onUpdateClick = (price = "", ticker = "") => {
+  const onUpdateClick = (ticker = "", cost = "") => {
     axiosInstance
-      .post("/user/profile", {
+      .post("user/profile/", {
         ticker: ticker,
-        price: price,
+        price: cost,
       })
       .then(function (response) {
         const price = response.data.payload.price ?? "";
@@ -28,6 +26,7 @@ function StartEarningBox(handleClose, ticker, setPrice) {
       });
     handleClose();
   };
+  console.log(cost);
   return (
     <ClickAwayListener onClickAway={handleClose}>
       <Box
@@ -56,9 +55,9 @@ function StartEarningBox(handleClose, ticker, setPrice) {
                 htmlFor="outlined-adornment-amount"
               ></InputLabel>
               <OutlinedInput
-                id="outlined-adornment-amount"
+                id="outlined-uncontrolled"
                 value={cost}
-                onChange={(value) => setCost(value.value)}
+                onChange={(event) => setCost(event.target.value)}
                 startAdornment={
                   <InputAdornment position="start">
                     {" "}
@@ -78,12 +77,17 @@ function StartEarningBox(handleClose, ticker, setPrice) {
             </FormControl>
           </form>
         </Box>
-        <Box display="flex" justifyContent="center" onClick={onUpdateClick}>
+        <Box
+          display="flex"
+          justifyContent="center"
+          onClick={() => cost && onUpdateClick(ticker, cost)}
+        >
           <ResizableButton
             borderRadius="20px"
             color="#fff"
-            bgColor="#6D5CD3"
-            border="1px solid  #6D5CD3"
+            bgColor={cost ? "#6D5CD3" : "#9c9c9c"}
+            border={cost ? "1px solid  #6D5CD3" : "1px solid #9c9c9c"}
+            hoverColor={cost ? "#6D5CD3" : "#9c9c9c"}
             height="54px"
             width="200px"
           >

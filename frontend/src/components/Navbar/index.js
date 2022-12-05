@@ -5,49 +5,58 @@ import logo from "../../logo.png";
 import { ethers } from "ethers";
 import axios from "axios";
 import noop from "lodash-es/noop";
-import tick from "../../tick.png";
-
-const signMessage = async ({ setError, message = "sign me up" }) => {
-  try {
-    console.log({ message });
-    if (!window.ethereum)
-      throw new Error("No crypto wallet found. Please install it.");
-
-    await window.ethereum.send("eth_requestAccounts");
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const signature = await signer.signMessage(message);
-    const address = await signer.getAddress();
-
-    return {
-      message,
-      signature,
-      address,
-    };
-  } catch (err) {
-    setError(err.message);
-  }
-};
+import { toast } from "react-toastify";
 
 const Navbar = () => {
   const [signatures, setSignatures] = useState([]);
+  const [address, setAddress] = useState("");
+  const [hash, setHash] = useState("");
   const [error, setError] = useState();
+  const [showLogin, setShowLogin] = useState(false);
   const [isConnected, setIsConnceted] = useState(false);
   const isUserLoggedin =
     window.localStorage.getItem("user_id") === "" ||
     window.localStorage.getItem("user_id") === undefined;
 
+  const signMessage = async ({ setError, message }) => {
+    try {
+      console.log({ message });
+      if (!window.ethereum)
+        throw new Error("No crypto wallet found. Please install it.");
+
+      await window.ethereum.send("eth_requestAccounts");
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const signature = await signer.signMessage(message);
+      const address = await signer.getAddress();
+      console.log(address, signature, "here");
+      setAddress(address);
+      setHash(signature);
+      loginUser(address, signature);
+
+      return {
+        message,
+        signature,
+        address,
+      };
+    } catch (err) {
+      setError(err.message);
+      setShowLogin(true);
+    }
+  };
+
   const redirectToSignup = () => {
-    window.open("http://localhost:3000/superfan/signup", "_self");
+    window.open("http://localhost:3001/superfan/signup", "_self");
   };
 
   const loginUser = (address, hash) => {
+    setShowLogin(false);
     const payload = {
       ethereum_address: address,
       signature_hash: hash,
     };
     axios
-      .post("/user/login", payload)
+      .post("http://3.6.38.16:8000/user/login/", payload)
       .then(function (response) {
         console.log(response);
         const userExists = !(response.data.payload.name === "");
@@ -57,7 +66,8 @@ const Navbar = () => {
         if (isError === "") {
           const accessToken = response.data.payload.jwt_credentials.access;
           window.localStorage.setItem("Authorization", `JWT ${accessToken}`);
-          window.localStorage.setItem("user_id", `JWT ${userId}`);
+          window.localStorage.setItem("user_id", userId);
+          console.log(response, "signup");
           if (userExists) {
             redirectToProfile();
           } else {
@@ -66,23 +76,32 @@ const Navbar = () => {
         }
       })
       .catch(function (error) {
-        console.log(error);
+        setShowLogin(true);
+        toast.error("Failed to login. " + error.response.data.error_msg, {
+          toastId: "login_failed",
+          style: {
+            background: "#FBF6F7",
+            border: "1px solid #EF4F5F",
+            borderRadius: "4px",
+            fontSize: "14px",
+            color: "#EF4F5F",
+          },
+        });
       });
   };
 
   const handleSign = async (e) => {
     const sig = signMessage({
       setError,
-      message: "You are signing into XFans.",
+      message: "You are signing into SuperFans.",
     });
     await sig;
     setSignatures([...signatures, sig]);
     setIsConnceted(true);
-    loginUser();
   };
   const redirectToProfile = () => {
     window.open(
-      `http://localhost:3000/superfan/profile?user_id=${window.localStorage.getItem(
+      `http://localhost:3001/superfan/profile?user_id=${window.localStorage.getItem(
         "user_id"
       )}`,
       "_self"
@@ -140,6 +159,22 @@ const Navbar = () => {
           >
             <Box fontSize="16px" fontWeight="600">
               {"Connect to wallet"}
+            </Box>
+          </ResizableButton>
+        )}
+        {showLogin && (
+          <ResizableButton
+            width="178px"
+            borderRadius="20px"
+            color="#fff"
+            bgColor="#6D5CD3"
+            border="1px solid 
+        #6D5CD3"
+            height="64px"
+            onClick={() => loginUser(address, hash)}
+          >
+            <Box fontSize="16px" fontWeight="600">
+              {"Login/Signup"}
             </Box>
           </ResizableButton>
         )}

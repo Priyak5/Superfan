@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import Box from "./components/atoms/box.atom";
 import Button from "@mui/material/Button";
 import { ethers } from "ethers";
+import Posts from "./components/Posts";
 
 const postImages = [
   "https://picsum.photos/200/300",
@@ -22,44 +23,28 @@ const GridWrapper = styled.div`
   grid-gap: 3px;
   grid-template-columns: repeat(3, 1fr);
   align-items: center;
+  width: 100%;
+  padding-bottom: 100px;
 
   img {
     max-width: 100%;
   }
 `;
 
-function PostGrid() {
+function PostGrid(posts = []) {
   const buyMedia = async (e) => {
     const data = "xyz";
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const viewMedia = new ethers.Contract("addr", "json", provider);
   };
+  const media = posts.posts ?? [];
+  console.log(media);
+  const [loaded, setLoaded] = useState(false);
+
   return (
     <GridWrapper>
-      {postImages.map((postImage) => (
-        <Box position="relative">
-          <img style={{ filter: "blur(7px)" }} src={postImage} alt="" />
-          <Box
-            zIndex="10"
-            top="140px"
-            right="200px"
-            position="absolute"
-            width="65px"
-            fontSize="14px"
-            color="#ebebeb"
-          >
-            {"Locked, buy to view"}
-          </Box>
-          <Box top="200px" right="200px" position="absolute">
-            <Button
-              style={{ color: "#fff", border: "1px solid #fff" }}
-              variant="outlined"
-              onClick={buyMedia}
-            >
-              Buy
-            </Button>
-          </Box>
-        </Box>
+      {media.map((postImage, index) => (
+        <Posts url={postImage.media_url} key={`media${index}`} />
       ))}
     </GridWrapper>
   );
