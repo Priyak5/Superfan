@@ -6,6 +6,7 @@ import { ethers } from "ethers";
 import axios from "axios";
 import noop from "lodash-es/noop";
 import { toast } from "react-toastify";
+import { url } from "../../constants";
 
 const Navbar = () => {
   const [signatures, setSignatures] = useState([]);
@@ -46,7 +47,7 @@ const Navbar = () => {
   };
 
   const redirectToSignup = () => {
-    window.open("http://localhost:3001/superfan/signup", "_self");
+    window.open(`${url}/superfan/signup`, "_self");
   };
 
   const loginUser = (address, hash) => {
@@ -101,7 +102,7 @@ const Navbar = () => {
   };
   const redirectToProfile = () => {
     window.open(
-      `http://localhost:3001/superfan/profile?user_id=${window.localStorage.getItem(
+      `${url}/superfan/profile?user_id=${window.localStorage.getItem(
         "user_id"
       )}`,
       "_self"
@@ -178,7 +179,7 @@ const Navbar = () => {
             </Box>
           </ResizableButton>
         )}
-        {isUserLoggedin && (
+        {/* {isUserLoggedin && (
           <Box pl="10px">
             <ResizableButton
               width="178px"
@@ -195,7 +196,7 @@ const Navbar = () => {
               </Box>
             </ResizableButton>
           </Box>
-        )}
+        )} */}
       </Box>
     </Box>
   );

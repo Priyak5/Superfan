@@ -7,9 +7,9 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import InputAdornment from "@mui/material/InputAdornment";
-import noop from "lodash-es/noop";
 import { axiosInstance } from "../api";
 import { toast } from "react-toastify";
+import { url } from "../constants";
 
 const SignUp = () => {
   const [name, setName] = useState("");
@@ -17,10 +17,11 @@ const SignUp = () => {
   const [ticker, setTicker] = useState("");
 
   const onSignupClick = (name, price, ticker) => {
-    console.log("here");
+    const finalTicker = ticker * 10 ** 18;
+
     axiosInstance
       .post("user/profile/", {
-        ticker: ticker,
+        ticker: finalTicker,
         price: price,
         name: name,
       })
@@ -29,7 +30,7 @@ const SignUp = () => {
         const name = response.data.payload.name ?? "";
         const price = response.data.payload.price ?? "";
         const ticker = response.data.payload.ticker ?? "";
-        const userId = response.data.payload.userId ?? "";
+        const userId = response.data.payload.user_id ?? "";
         setName(name);
         setPrice(price);
         setTicker(ticker);
@@ -53,7 +54,7 @@ const SignUp = () => {
 
   const redirectToProfile = () => {
     window.open(
-      `http://localhost:3001/superfan/profile?user_id=${window.localStorage.getItem(
+      `${url}/superfan/profile?user_id=${window.localStorage.getItem(
         "user_id"
       )}`,
       "_self"
@@ -115,7 +116,7 @@ const SignUp = () => {
                 alignItems="flex-start"
                 py="12px"
               >
-                {"Earning per post"}
+                {"Subscription fee"}
               </Box>
               <FormControl fullWidth sx={{ m: 1 }}>
                 <InputLabel
@@ -147,7 +148,7 @@ const SignUp = () => {
                 py="12px"
                 fontSize="18px"
               >
-                {"Ticker (Should not be more than 7 characters)"}
+                {"Ticker (Eg- TESLA/GOOGLE/HELLO)"}
               </Box>
               <TextField
                 variant="outlined"

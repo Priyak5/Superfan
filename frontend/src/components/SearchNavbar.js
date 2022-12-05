@@ -7,6 +7,7 @@ import { ResizableButton } from "../styled_components";
 import { useSearchParams } from "react-router-dom";
 import { axiosInstance } from "../api";
 import { toast } from "react-toastify";
+import { url } from "../constants";
 
 const SearchNavbar = () => {
   const [searchList, setSearchList] = useState([]);
@@ -39,7 +40,6 @@ const SearchNavbar = () => {
         }
       })
       .catch(function (error) {
-        console.log(error);
         toast.error(error.message, {
           toastId: "search_failed",
           style: {
@@ -58,12 +58,11 @@ const SearchNavbar = () => {
   const isSelf = user_id === window.localStorage.getItem("user_id");
 
   const redirectToHome = (name) => {
-    if (name !== "")
-      window.open(`http://localhost:3001/superfan/mainpage`, "_self");
+    if (name !== "") window.open(`${url}/superfan/mainpage`, "_self");
   };
   const redirectToSelf = () => {
     window.open(
-      `http://localhost:3001/superfan/profile?user_id=${window.localStorage.getItem(
+      `${url}/superfan/profile?user_id=${window.localStorage.getItem(
         "user_id"
       )}`,
       "_self"
@@ -71,7 +70,7 @@ const SearchNavbar = () => {
   };
   const redirectToProfile = (currentlySelected) => {
     window.open(
-      `http://localhost:3001/superfan/profile?user_id=${currentlySelected}`,
+      `${url}/superfan/profile?user_id=${currentlySelected}`,
       "_self"
     );
   };

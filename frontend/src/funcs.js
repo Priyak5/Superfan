@@ -5,37 +5,8 @@ import Web3 from "@truffle/contract/node_modules/web3";
 import { toast } from "react-toastify";
 import { useState } from "react";
 
-// import json
-// from web3 import Web3
-
-// with open("./build/contracts/CreatorNFT.json") as f:
-//     res = json.load(f)
-//     abi_dict = res["abi"]
-
-// w3 = Web3(Web3.HTTPProvider("https://beta-rpc.mainnet.computecoin.com/"))
-// contract = w3.eth.contract(address="0xDa1D81e482704c917589b651073A0C5e4b2f5b9A", abi=abi_dict)
-
-// public_key = "0x50d8fEaA211C96579C2A2851Cc895779FfE26A39"
-// private_key = "fd0fe231a867186b3ef70fac4a09cc31f59d20bcab166d005fe47183f1b20ccb"
-
-// nonce = w3.eth.get_transaction_count(public_key)
-
-// transaction = contract.functions.purchaseSubscription().buildTransaction({
-//     'gas': 70000,
-//     'gasPrice': w3.toWei('1', 'gwei'),
-//     'value': 400000000000000,
-//     'from': public_key,
-//     'nonce': nonce
-// })
-
-// signed_txn = w3.eth.account.signTransaction(transaction, private_key=private_key)
-// tx = w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-// print(tx)
-
 const sendTransactions = async (contract, price) => {
-  const x = 10 ** 18;
-  const p = price * x;
-  return contract.methods.purchaseSubscription().send({ value: p });
+  return contract.methods.purchaseSubscription().send({ value: price });
 };
 
 export const startPayment = async (
@@ -79,12 +50,6 @@ export const startPayment = async (
 
   const contract = new web3.eth.Contract(uploadMediaJSON, contractAddress, tx);
   contract.methods.purchaseSubscription().encodeABI();
-
-  // web3.eth.accounts.signTransaction(tx).then((signed) => {
-  //   web3.eth
-  //     .sendSignedTransaction(signed.rawTransaction)
-  //     .on("receipt", console.log);
-  // });
 
   sendTransactions(contract, price)
     .then((resp) => {

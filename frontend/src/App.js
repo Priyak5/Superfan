@@ -6,13 +6,13 @@ import SignUp from "./pages/Signup";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 import React, { useState, useEffect } from "react";
+import { url } from "./constants";
 
 function App() {
   const [currentAccount, setCurrentAccount] = useState("");
 
   const redirectToHome = (name) => {
-    if (name !== "")
-      window.open(`http://localhost:3001/superfan/mainpage`, "_self");
+    if (name !== "") window.open(`${url}/superfan/mainpage`, "_self");
   };
 
   const checkIfAccountChanged = async () => {
@@ -49,6 +49,8 @@ function App() {
         />
         <Router>
           <Routes>
+            <Route path="/" element={<MainLayout />} />
+            <Route path="/superfan" element={<MainLayout />} />
             <Route path="/superfan/mainpage" element={<MainLayout />} />
             <Route path="/superfan/profile" element={<Profile />} />
             <Route path="/superfan/signup" element={<SignUp />} />

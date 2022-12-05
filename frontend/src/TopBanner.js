@@ -69,7 +69,7 @@ export const Banner = () => {
               <img src={rocket} height="80px" width="80px" />{" "}
             </h1>
             <h3>
-              Empowering creators by sourcing their earnings direclty from their
+              Empowering creators by sourcing their earnings directly from their
               fans.
             </h3>
             {/* </div>
