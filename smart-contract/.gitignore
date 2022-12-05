@@ -1,0 +1,4 @@
+secrets.json
+temp/
+node_modules
+secrets.json@temp
