@@ -171,7 +171,7 @@ const Navbar = () => {
             border="1px solid 
         #6D5CD3"
             height="64px"
-            onClick={() => loginUser(address, hash)}
+            onClick={() => handleSign()}
           >
             <Box fontSize="16px" fontWeight="600">
               {"Login/Signup"}

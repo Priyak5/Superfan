@@ -78,20 +78,10 @@ const style = {
   p: 4,
 };
 
-function ProfileDetails({ profileData, isSelf, setData }) {
+function ProfileDetails({ profileData, isSelf, setData, getProfileData }) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [isSuccess, setIsSuccess] = useState(false);
   const user_id = searchParams.get("user_id");
-  const [address, setAdsress] = useState("");
-  const [open, setOpen] = useState();
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const [openProfile, setOpenProfile] = useState();
-  const handleOpenProfile = () => setOpenProfile(true);
-  const handleCloseProfile = () => {
-    setOpenProfile(false);
-  };
   const [price, setPrice] = useState();
   const [ticker, setTicker] = useState("");
   const [name, setName] = useState("");
@@ -99,17 +89,42 @@ function ProfileDetails({ profileData, isSelf, setData }) {
   const [posts, setPosts] = useState([]);
   const [totalEarnings, setTotalEarnings] = useState("");
   const [error, setError] = useState("");
+  const [contractAddress, setContractAddress] = useState("");
 
   const sendPrice = price * 10 ** 18;
 
   useEffect(() => {
-    setError("");
-    // if (price) {
-    //   console.log(startPayment(price, setError));
-    // }
-  }, [price]);
+    if (isSuccess) {
+      getProfileData();
+    }
+  }, [isSuccess]);
+
+  const onSubscribeClick = () => {
+    startPayment(
+      price,
+      setError,
+      contractAddress,
+      getProfileData,
+      setIsSuccess
+    );
+  };
 
   const isUsersProfile = user_id == window.localStorage.getItem("user_id");
+
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+  const [openProfile, setOpenProfile] = useState(false);
+  const handleOpenProfile = () => {
+    setOpenProfile(true);
+  };
+  const handleCloseProfile = () => {
+    setOpenProfile(false);
+  };
 
   const [openCost, setOpenCost] = useState();
   const handleOpenCost = () => {
@@ -118,6 +133,7 @@ function ProfileDetails({ profileData, isSelf, setData }) {
   const handleCloseCost = () => setOpenCost(false);
 
   useEffect(() => {
+    setError("");
     const displayPictureurl = get(profileData, "profile_pic", "");
     setDisplayPicture(displayPictureurl);
     const name = get(profileData, "name", "");
@@ -130,11 +146,17 @@ function ProfileDetails({ profileData, isSelf, setData }) {
     setPosts(posts);
     const totalEarnings = get(profileData, "total_earnings", "");
     setTotalEarnings("1000");
+    const contractAddress = get(profileData, "contract_address", "");
+    setContractAddress(contractAddress);
   }, [profileData]);
 
   const updatePostList = (currentImage) => {
-    const newPosts = posts;
     newPosts.push(currentImage);
+    const newPosts = [];
+    posts.forEach((post) => {
+      newPosts.push(post);
+    });
+    console.log(newPosts);
     setPosts(newPosts);
   };
 
@@ -229,7 +251,7 @@ function ProfileDetails({ profileData, isSelf, setData }) {
                 border="1px solid 
           #6D5CD3"
                 height="54px"
-                // onClick={redirectToSelf}
+                onClick={onSubscribeClick}
               >
                 <Box fontSize="16px" fontWeight="600">
                   {"Subscribe to view content"}
@@ -246,7 +268,7 @@ function ProfileDetails({ profileData, isSelf, setData }) {
                   background="#000"
                   color="red"
                 >
-                  {"Unable to subscribe due to " + error}
+                  {error}
                 </Box>
               )}
             </Box>

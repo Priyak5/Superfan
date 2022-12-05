@@ -19,15 +19,46 @@ const GridWrapper = styled.div`
 function Posts({ url = "" }) {
   return (
     <>
-      <Box
-        height="300px"
-        width="300px"
-        position="relative"
-        display="flex"
-        justifyContent="center"
-      >
-        <img src={url} />
-      </Box>
+      {url ? (
+        <Box
+          height="300px"
+          width="300px"
+          position="relative"
+          display="flex"
+          justifyContent="center"
+        >
+          <img src={url} />
+        </Box>
+      ) : (
+        <Box
+          height="300px"
+          width="300px"
+          position="relative"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          overflow="hidden"
+        >
+          <img
+            style={{ filter: "blur(7px)" }}
+            src="https://picsum.photos/200/300"
+            alt=""
+            height="100%"
+            width="100%"
+          />
+          <Box
+            zIndex="10"
+            width="65px"
+            fontSize="14px"
+            color="#000"
+            position="absolute"
+            top="140px"
+            right="120px"
+          >
+            {"Locked, subscribe to view"}
+          </Box>
+        </Box>
+      )}
     </>
   );
 }

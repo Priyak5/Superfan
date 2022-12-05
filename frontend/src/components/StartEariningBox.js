@@ -8,6 +8,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import { ResizableButton } from "../styled_components";
 import { ClickAwayListener } from "@mui/base";
 import { axiosInstance } from "../api";
+import { toast } from "react-toastify";
 
 function StartEarningBox({ handleClose, ticker, setPrice }) {
   const [cost, setCost] = useState();
@@ -20,13 +21,32 @@ function StartEarningBox({ handleClose, ticker, setPrice }) {
       .then(function (response) {
         const price = response.data.payload.price ?? "";
         setPrice(price);
+        toast.success("Subscription price updated", {
+          toastId: "price_updated",
+          style: {
+            background: "#EBFFEF",
+            border: "1px solid #24963F",
+            borderRadius: "4px",
+            fontSize: "14px",
+            color: "#24963F",
+          },
+        });
       })
       .catch(function (error) {
-        console.log(error);
+        toast.error(error.response.data.error_msg, {
+          toastId: "update_failed_sub",
+          style: {
+            background: "#FBF6F7",
+            border: "1px solid #EF4F5F",
+            borderRadius: "4px",
+            fontSize: "14px",
+            color: "#EF4F5F",
+          },
+        });
       });
     handleClose();
   };
-  console.log(cost);
+
   return (
     <ClickAwayListener onClickAway={handleClose}>
       <Box

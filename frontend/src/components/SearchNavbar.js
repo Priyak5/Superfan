@@ -84,8 +84,6 @@ const SearchNavbar = () => {
     }
   }, [currentlySelected]);
 
-  console.log(currentInput, "check inpute");
-
   useEffect(() => {
     if (currentInput != "") getSearchList(currentInput);
   }, [currentInput]);

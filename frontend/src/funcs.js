@@ -2,35 +2,85 @@ import uploadMediaJSON from "../src/uploadMediaABI.json";
 import { ethers } from "ethers";
 import contract from "@truffle/contract";
 import Web3 from "@truffle/contract/node_modules/web3";
+import { toast } from "react-toastify";
+import { useState } from "react";
 
-const contractAddress = "0xDa1D81e482704c917589b651073A0C5e4b2f5b9A";
+const sendTransactions = async (contract, price) => {
+  const x = 10 ** 18;
+  const p = price * x;
+  return contract.methods.purchaseSubscription().send({ value: p });
+};
 
-export const startPayment = async (price, setError) => {
+export const startPayment = async (
+  price,
+  setError,
+  contractAddress,
+  getProfileData,
+  setIsSuccess
+) => {
+  setError("");
   try {
+    let selectedAccount;
     if (!window.ethereum)
       throw new Error("No crypto wallet found. Please install it.");
 
-    await window.ethereum.send("eth_requestAccounts");
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const web3 = new Web3(Web3.givenProvider);
-    const signer = provider.getSigner();
-    const theContract = new web3.eth.Contract(
-      uploadMediaJSON,
-      "0xDa1D81e482704c917589b651073A0C5e4b2f5b9A"
-    );
+    let provider = window.ethereum;
 
-    const sendPrice = price * 10 ** 18;
-    const tx = {
-      value: sendPrice,
-    };
-    const transaction = await theContract.methods.purchaseSubscription();
-    const signed_tx = await signer.sendTransaction({
-      value: ethers.utils.parseEther(price),
+    if (typeof provider !== "undefined") {
+      await provider
+        .request({ method: "eth_requestAccounts" })
+        .then((accounts) => {
+          selectedAccount = accounts[0];
+          console.log(`Selected account is ${selectedAccount}`);
+        })
+        .catch((err) => {
+          console.log(err);
+          return;
+        });
+      window.ethereum.on("accountsChanged", function (accounts) {
+        selectedAccount = accounts[0];
+        console.log(`Selected account changed to ${selectedAccount}`);
+      });
+    }
+    const gasNum = 7;
+    const feeNum = 1 * 10 ** 18;
+    const web3 = new Web3(provider);
+
+    const contract = new web3.eth.Contract(uploadMediaJSON, contractAddress, {
+      from: selectedAccount,
+      gasPrice: gasNum,
+      gas: feeNum,
     });
-    console.log(signed_tx);
-    const finaltx = web3.eth.sendSignedTransaction(signed_tx);
-    console.log(finaltx);
+
+    sendTransactions(contract, price)
+      .then((resp) => {
+        console.log(resp);
+        setIsSuccess(true);
+      })
+      .catch((err) => {
+        console.log(err);
+        setError("Subscription failed, please try again");
+        toast.error(err.message, {
+          toastId: "failed_to_purchase_2",
+          style: {
+            background: "#FBF6F7",
+            border: "1px solid #EF4F5F",
+            borderRadius: "4px",
+            fontSize: "14px",
+            color: "#EF4F5F",
+          },
+        });
+      });
   } catch (err) {
-    setError(err.message.slice(0, 18));
+    toast.error(err.message, {
+      toastId: "failed_to_purchase",
+      style: {
+        background: "#FBF6F7",
+        border: "1px solid #EF4F5F",
+        borderRadius: "4px",
+        fontSize: "14px",
+        color: "#EF4F5F",
+      },
+    });
   }
 };

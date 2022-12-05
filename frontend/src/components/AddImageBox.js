@@ -5,6 +5,8 @@ import styled from "@emotion/styled";
 import { ResizableButton } from "../styled_components";
 import { ClickAwayListener } from "@mui/base";
 import { axiosInstance } from "../api";
+import { toast } from "react-toastify";
+import { CircularProgress } from "@mui/material";
 
 const FileInput = styled.input`
   display: none;
@@ -26,7 +28,6 @@ const CrossWrapper = styled(Box)`
 const ALLOWED_FILE_TYPES = ["image/jpg", "image/png", "image/jpeg"];
 
 export const AddImageBox = ({ handleClose, type, callback }) => {
-  console.log(handleClose);
   const acceptedFormats = ALLOWED_FILE_TYPES;
   const maxFileSize = 5; //in Megabytes
   const maxNumberOfFiles = 1;
@@ -43,6 +44,7 @@ export const AddImageBox = ({ handleClose, type, callback }) => {
   const [imageFile, setImageFile] = useState({});
   const [isUploadComplete, setIsUploadComplete] = useState(false);
   const uploadDisabled = filesList.length === maxNumberOfFiles;
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setDisplayImageURL("");
@@ -59,19 +61,47 @@ export const AddImageBox = ({ handleClose, type, callback }) => {
       });
   }
   const uploadImage = () => {
-    handleClose();
+    setIsLoading(true);
     const data = new FormData();
     data.append("file", imageFile);
     data.append("media_type", type);
     axiosInstance
       .post("user/media/", data)
       .then(function (response) {
+        setIsLoading(false);
         console.log(response, "image");
         const profile = response.data.media_url;
         callback(profile);
+        handleClose();
+        const m =
+          type === "POST"
+            ? "Post upload successful"
+            : "Display updated successfully";
+        toast.success(m, {
+          toastId: "price_updated",
+          style: {
+            background: "#EBFFEF",
+            border: "1px solid #24963F",
+            borderRadius: "4px",
+            fontSize: "14px",
+            color: "#24963F",
+          },
+        });
       })
       .catch(function (error) {
-        console.log(error);
+        setIsLoading(false);
+        setDisplayImageURL("");
+        setImageFile({});
+        toast.error(error.data.error_msg, {
+          toastId: "update_failed_sub",
+          style: {
+            background: "#FBF6F7",
+            border: "1px solid #EF4F5F",
+            borderRadius: "4px",
+            fontSize: "14px",
+            color: "#EF4F5F",
+          },
+        });
       });
   };
 
@@ -238,7 +268,7 @@ export const AddImageBox = ({ handleClose, type, callback }) => {
             onClick={displayImageURL && uploadImage}
           >
             <Box fontSize="16px" fontWeight="600">
-              {"Upload"}
+              {isLoading ? <CircularProgress color="inherit" /> : "Upload"}
             </Box>
           </ResizableButton>
           <Box px="10px" />

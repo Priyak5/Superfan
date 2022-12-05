@@ -132,6 +132,7 @@ function Profile() {
             profileData={profileData}
             isSelf={isSelf}
             setData={setData}
+            getProfileData={getProfileData}
           />
           {/* <Tabs />
           <PostGrid posts={profileData.posts} /> */}
