@@ -151,17 +151,18 @@ function ProfileDetails({ profileData, isSelf, setData, getProfileData }) {
   }, [profileData]);
 
   const updatePostList = (currentImage) => {
-    newPosts.push(currentImage);
     const newPosts = [];
+    console.log(currentImage.data);
+    newPosts.push(currentImage);
     posts.forEach((post) => {
       newPosts.push(post);
     });
-    console.log(newPosts);
     setPosts(newPosts);
   };
 
   const currentlyEarning = price === "0" || price === undefined;
-  const isSubscribed = isSelf && posts.length != 0;
+  const isSubscribed =
+    !isUsersProfile && posts && posts[0] && posts[0].media_url !== "";
 
   return (
     <>
@@ -189,7 +190,6 @@ function ProfileDetails({ profileData, isSelf, setData, getProfileData }) {
               <img src={defaultImage} width="100%" />
             )}
           </Box>
-
           {isUsersProfile && (
             <Box onClick={handleOpenProfile} width="40%" py="20px">
               <ResizableButton
@@ -235,7 +235,28 @@ function ProfileDetails({ profileData, isSelf, setData, getProfileData }) {
           >
             {ticker}
           </Box>
-          {!isSubscribed && !isUsersProfile && (
+          {isSubscribed && (
+            <Box
+              mt="10px"
+              display="flex"
+              width="178px"
+              borderRadius="20px"
+              color="#fff"
+              bgColor="#0000"
+              border="1px solid 
+          #6D5CD3"
+              height="54px"
+              hoverColor="none"
+              alignItems="center"
+              justifyContent="center"
+              flexDirection="column"
+            >
+              <Box fontSize="16px" fontWeight="600">
+                {"Subscribed"}
+              </Box>
+            </Box>
+          )}
+          {!isUsersProfile && !isSubscribed && (
             <Box
               pt="30px"
               display="flex"

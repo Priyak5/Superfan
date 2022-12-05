@@ -70,7 +70,12 @@ export const AddImageBox = ({ handleClose, type, callback }) => {
       .then(function (response) {
         setIsLoading(false);
         console.log(response, "image");
-        const profile = response.data.media_url;
+        var profile = "";
+        if (type === "POST") {
+          profile = response.data;
+        } else {
+          profile = response.data.media_url;
+        }
         callback(profile);
         handleClose();
         const m =
@@ -92,7 +97,8 @@ export const AddImageBox = ({ handleClose, type, callback }) => {
         setIsLoading(false);
         setDisplayImageURL("");
         setImageFile({});
-        toast.error(error.data.error_msg, {
+        console.log(error);
+        toast.error(error.message, {
           toastId: "update_failed_sub",
           style: {
             background: "#FBF6F7",
