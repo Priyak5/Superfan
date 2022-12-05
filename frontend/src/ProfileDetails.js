@@ -387,34 +387,6 @@ function ProfileDetails({ profileData, isSelf, setData, getProfileData }) {
                   />
                 </Modal>
               </Box>
-              <Box
-                // onClick={handleSign}
-                width="40%"
-                ml="46px"
-              >
-                <ResizableButton
-                  borderRadius="20px"
-                  color="#fff"
-                  bgColor="#6D5CD3"
-                  border="1px solid 
-          #3820e9"
-                  height="54px"
-                  onClick={handleOpenCost}
-                >
-                  <Box fontSize="16px" fontWeight="600">
-                    {currentlyEarning
-                      ? "Start earning today"
-                      : "Update subscription fee"}
-                  </Box>
-                </ResizableButton>
-                <Modal open={openCost} onClose={handleCloseCost}>
-                  <StartEarningBox
-                    handleClose={handleCloseCost}
-                    ticker={ticker}
-                    setPrice={setPrice}
-                  />
-                </Modal>
-              </Box>
             </Box>
           )}
         </Box>

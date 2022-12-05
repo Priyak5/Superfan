@@ -13,10 +13,11 @@ import { toast } from "react-toastify";
 function StartEarningBox({ handleClose, ticker, setPrice }) {
   const [cost, setCost] = useState();
   const onUpdateClick = (ticker = "", cost = "") => {
+    const finalCost = cost * 10 ** 18;
     axiosInstance
       .post("user/profile/", {
         ticker: ticker,
-        price: cost,
+        price: finalCost,
       })
       .then(function (response) {
         const price = response.data.payload.price ?? "";
